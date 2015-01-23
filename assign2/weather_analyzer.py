@@ -1,20 +1,29 @@
 from __future__ import print_function
 
+def parse_date(date):
+    date = date[4] + date[5] + '/' + date[6] + date[7] + '/' + date[0] + date[1] + date[2] + date[3]
+    return date
+
+def ctof(temp):
+    return ((temp * 9 / 5) + 32)
+
 def find_max_temp(data):
     max_temp = 0
     for d in data:
-        if (d['TMAX'] > max_temp):
-            max_temp = d['TMAX']
+        if ( float(d['TMAX']) > max_temp):
+            max_temp = float(d['TMAX'])
             day = d['DATE']
-    return max_temp, day
+    return ctof(max_temp / 10), parse_date(day)
 
 def find_min_dif(data):
     min_dif = float('inf')
     for d in data:
-        if ( (float(d['TMAX']) - float(d['TMIN'])) < min_dif ):
-            min_dif = (float(d['TMAX']) - float(d['TMIN']))
+        tmin = ctof( float(d['TMIN']) / 10)
+        tmax = ctof( float(d['TMAX']) / 10)
+        if ( (tmax - tmin) < min_dif ):
+            min_dif = (tmax - tmin)
             day = d['DATE']
-    return min_dif, day
+    return min_dif, parse_date(day)
 
 def find_ave_wnd(data):
     ave_wnd = 0
@@ -39,4 +48,7 @@ with open(raw_input('File to be analyzed (.csv only): '), 'r') as file:
         else:
             data.append( {k.strip('\n'): v.strip('\n') for k, v in zip(keys, line.split(','))} )
 
-print(tot_prcp(data))
+print('Maximum temperature (F): ',find_max_temp(data)[0], ' on ', find_max_temp(data)[1] )
+print('Minimum temperature difference (F): ',find_min_dif(data)[0], ' on ', find_min_dif(data)[1] )
+print('Average wind speed (m/s): ',find_ave_wnd(data) / 10)
+print('Total precipitation (mm): ',tot_prcp(data) / 10)
