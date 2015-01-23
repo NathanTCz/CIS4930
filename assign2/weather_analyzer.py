@@ -7,11 +7,8 @@ def parse_date(date):
 def ctof(temp):
     return ((temp * 9 / 5) + 32)
 
-def find_max_temp(data, max_temp=0):
-    for d in data:
-        if ( float(d['TMAX']) > max_temp):
-            max_temp, day = float(d['TMAX']), d['DATE']
-    return ctof(max_temp / 10), parse_date(day)
+def find_max_temp(data):
+    return max([( ctof(float(d['TMAX']) / 10), parse_date(d['DATE']) ) for d in data], key=lambda x: x[0])
 
 def find_min_dif(data, min_dif=float('inf')):
     for d in data:
@@ -26,11 +23,9 @@ def find_ave_wnd(data):
 def tot_prcp(data):
     return ( sum( [float(d['PRCP']) for d in data] ) )
 
-data = []
 with open(raw_input('File to be analyzed (.csv only): '), 'r') as file:
     keys = [x for x in file.readline().split(',')]
-    for line in file:
-        data.append( {k.strip('\n'): v.strip('\n') for k, v in zip(keys, line.split(','))} )
+    data = [{k.strip('\n'): v.strip('\n') for k, v in zip(keys, line.split(','))} for line in file]
 
 print('Maximum temperature (F): ',find_max_temp(data)[0], ' on ', find_max_temp(data)[1] )
 print('Minimum temperature difference (F): ',find_min_dif(data)[0], ' on ', find_min_dif(data)[1] )
