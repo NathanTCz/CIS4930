@@ -9,12 +9,6 @@ def rm_dups(keyword):
             no_dups.append(x)
     return no_dups
 
-def prt_list(L):
-    for item in L:
-        print(item, end='')
-    print()
-
-upper_alpha = [x for x in string.ascii_uppercase]
 lower_alpha = [x for x in string.ascii_lowercase]
 characters = []
 
@@ -25,19 +19,18 @@ with open( sys.argv[1], 'r' ) as file:
 
 keyword = rm_dups([x for x in raw_input('Please enter a keyword for the mixed cipher: ')])
 
-cipher_text_lower = rm_dups( keyword + lower_alpha )
-cipher_text_upper = [x.upper() for x in cipher_text_lower]
+cipher_alpha = rm_dups( keyword + lower_alpha )
 ciphered_file = []
-for key, char in enumerate(characters):
+for char in characters:
     if char == ' ' or char == '.':
         ciphered_file.append(char)
-    elif char in lower_alpha:
-        ciphered_file.append( cipher_text_lower[ lower_alpha.index(char) ] )
-    elif char in upper_alpha:
-        ciphered_file.append( cipher_text_upper[ upper_alpha.index(char) ] )
+    elif char.islower():
+        ciphered_file.append( cipher_alpha[ lower_alpha.index(char) ] )
+    elif char.isupper():
+        ciphered_file.append( cipher_alpha[ lower_alpha.index( char.lower() ) ].upper() )
 
 print('Plaintext:   ', end='')
-prt_list(lower_alpha)
+print(('').join(lower_alpha))
 print('Ciphertext:  ', end='')
-prt_list(cipher_text_lower)
-prt_list(ciphered_file)
+print(('').join(cipher_alpha))
+print(('').join(ciphered_file))
