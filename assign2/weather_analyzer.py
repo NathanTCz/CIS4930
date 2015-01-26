@@ -25,7 +25,7 @@ def tot_prcp(data):
 
 with open(raw_input('File to be analyzed (.csv only): '), 'r') as file:
     keys = [x for x in file.readline().split(',')]
-    data = [{k.strip('\n'): v.strip('\n') for k, v in zip(keys, line.split(','))} for line in file]
+    data = [{k : v for k, v in zip(keys, line.strip('\n').split(','))} for line in file]
 
 print('Maximum temperature (F): ',find_max_temp(data)[0], ' on ', find_max_temp(data)[1] )
 print('Minimum temperature difference (F): ',find_min_dif(data)[0], ' on ', find_min_dif(data)[1] )
