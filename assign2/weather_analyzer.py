@@ -1,8 +1,7 @@
 from __future__ import print_function
 
 def parse_date(date):
-    date = '{0[4]}{0[5]}/{0[6]}{0[7]}/{0[0]}{0[1]}{0[2]}{0[3]}'.format(date)
-    return date
+    return '{0[4]}{0[5]}/{0[6]}{0[7]}/{0[0]}{0[1]}{0[2]}{0[3]}'.format(date)
 
 def ctof(temp):
     return ((temp * 9 / 5) + 32)
