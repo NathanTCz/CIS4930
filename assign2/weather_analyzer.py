@@ -1,3 +1,8 @@
+'''
+Nathan Cazell (ntc10)
+1/23/15
+'''
+
 from __future__ import print_function
 
 def parse_date(date):

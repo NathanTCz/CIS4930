@@ -1,3 +1,8 @@
+'''
+Nathan Cazell (ntc10)
+1/21/15
+'''
+
 from __future__ import print_function
 import sys
 import string
