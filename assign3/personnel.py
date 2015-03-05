@@ -6,16 +6,16 @@ class Character:
     def __init__(self):
         self.pos = Position(0, 2)
 
-    def attack(self, opp):
-        return self.calc_damage(opp)
+    def attack(self, opp, c):
+        return self.calc_damage(opp, c)
 
-    def calc_damage(self, opponent):
+    def calc_damage(self, opponent, c):
         damage = randint(0, 6) + self.strength - opponent.defense
         if damage <= 0:
-            print("{} evades {}'s attack.".format(opponent.name, self.name))
+            c.send("{} evades {}'s attack.\n".format(opponent.name, self.name))
         else:
             opponent.hp = opponent.hp - damage
-            print("{} attacks {} for {} points of damage!".format(
+            c.send("{} attacks {} for {} points of damage!\n".format(
                             self.name, opponent.name, str(damage)))
 
         return opponent
@@ -36,22 +36,22 @@ class Player(Character):
         self.name = n
         self.sym = 'P'
 
-    def help(self):
-        print('go [N, S, E, or W]')
-        print('quit')
-        print('attack')
-        print('health')
-        print('help')
+    def help(self, c):
+        c.send('go [N, S, E, or W]\n')
+        c.send('quit\n')
+        c.send('attack\n')
+        c.send('health\n')
+        c.send('help\n')
 
-    def health(self):
-        print(self.name, 'has', self.hp,'HP.')
+    def health(self, c):
+        c.send(self.name+' has '+str(self.hp)+'HP.\n')
 
     def go(self):
         pass
 
-    def quit(self):
-        print(self.name, 'has lost all hope and locked themself in the ACM office')
-        print('to read ancient ACM magazines and await their final doom.')
+    def quit(self, c):
+        c.send(self.name + ' has lost all hope and locked themself in the ACM office\n')
+        c.send('to read ancient ACM magazines and await their final doom.\n')
 
 
 class CodeWarrior(Player):

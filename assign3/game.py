@@ -37,11 +37,13 @@ class Game:
     intro += "approach the lab and encounter a strange sight: the lab is empty\n"
     intro += "and dark...but the door is open. The power must have been knocked\n"
     intro += "out by the storm. The brave little CS student enters the dark room\n"
-    intro += "to find their backpack..."
+    intro += "to find their backpack...\n"
 
-    def __init__(self, player):
+    def __init__(self, player, socket_conn):
+        self.conn = socket_conn
+
         self.grid = [['+' for x in range(5)] for x in range(5)]
-        print(self.intro)
+        self.conn.send(self.intro)
 
         self.player = player
         self.opponent = None
@@ -69,7 +71,7 @@ class Game:
 
     def place_player_and_check(self, pos):
         if pos.x < 0 or pos.y < 0:
-            raise IndexError('{} has run into a wall. Try another direction'.format(
+            raise IndexError('{} has run into a wall. Try another direction\n'.format(
                                 self.player.name))
         elif self.grid[ pos.y ][ pos.x ] == '+':
             self.grid[ pos.y ][ pos.x ] = self.player
@@ -82,16 +84,16 @@ class Game:
             error += 'assembled itself out of spare parts. Prepare to fight!\n'
             raise EncounteredEvilRobot( error, self.grid[ pos.y ][ pos.x ] )
         elif self.grid[ pos.y ][ pos.x ].sym == 'R':
-            error = '{} rand into one of those legendary mecahnical rat\n'.format(
+            error = '{} ran into one of those legendary mecahnical rat\n'.format(
                         self.player.name)
             error += 'traps in the Love basement. RIP.\n'
             raise EncounteredRatTrap(error)
         elif self.grid[ pos.y ][ pos.x ].sym == 'B':
-            success = 'Congratulations, {} found their backpack!!!'.format(
+            success = 'Congratulations, {} found their backpack!!!\n'.format(
                         self.player.name)
             raise EncounteredBackpack(success)
         else:
-            raise IndexError('{} has run into a wall. Try another direction'.format(
+            raise IndexError('{} has run into a wall. Try another direction\n'.format(
                                 self.player.name))
 
     def move_player(self, direc):
@@ -116,41 +118,42 @@ class Game:
             try:
                 self.place_player_and_check(pos)
             except EncounteredEvilRobot as e:
-                print(e)
+                self.conn.send(str(e))
                 self.opponent = e.charac
             except EncounteredRatTrap as e:
-                print(e)
+                self.conn.send(str(e))
                 self.over = True
             except EncounteredBackpack as success:
-                print(success)
+                self.conn.send(str(success))
                 win_message = 'And so, our hero safely makes their way to the exit. Luckily, {} made it out\n'.format(
                                 self.player.name)
-                win_message += 'alive this time. But one thing is for sure: {} will never put off studying for\n'.format(
+                win_message += 'alive this time. But one thing is for sure: {} will never put off studying\n'.format(
                                 self.player.name)
                 win_message += 'for their final exams ever again.\n'
-                print(win_message)
+                self.conn.send(win_message)
                 self.over = True
-            except IndexError as e:
-                print(e)
+            except IndexError:
+                self.conn.send('{} has run into a wall. Try another direction\n'.format(
+                                    self.player.name))
         else:
-            print('{} can\'t run from the Evil Robot.'.format(self.player.name))
+            self.conn.send('{} can\'t run from the Evil Robot.\n'.format(self.player.name))
 
     def fight(self):
         if self.opponent != None:
-            self.opponent = self.player.attack(self.opponent)
+            self.opponent = self.player.attack(self.opponent, self.conn)
             self.check_for_winner()
             if self.opponent != None:
-                self.player = self.opponent.attack(self.player)
+                self.player = self.opponent.attack(self.player, self.conn)
                 self.check_for_winner()
         else:
-            print('{} doesn\'t see anything worth attacking.'.format(self.player.name))
+            self.conn.send('{} doesn\'t see anything worth attacking.\n'.format(self.player.name))
 
     def check_for_winner(self):
         if self.player.hp <= 0:
-            print('{}\'s epic backpack search has come to an end. RIP')
+            self.conn.send('{}\'s epic backpack search has come to an end. RIP\n')
             self.over = True
         elif self.opponent.hp <= 0:
-            print('Evil Robot has crashed! {} wins!'.format(self.player.name))
+            self.conn.send('Evil Robot has crashed! {} wins!\n'.format(self.player.name))
             self.grid[ self.opponent.pos.y ][ self.opponent.pos.x ] = self.player
             self.grid[ self.player.pos.y ][ self.player.pos.x ] = '+'
             self.player.pos.x = self.opponent.pos.x
@@ -161,7 +164,7 @@ class Game:
         for r in self.grid:
             for c in r:
                 if c != '+':
-                    print(c.sym, ' ', end='')
+                    self.conn.send(c.sym + ' ')
                 else:
-                    print(c, ' ', end='')
-            print()
+                    self.conn.send(c + ' ')
+            self.conn.send("\n")
